@@ -14,7 +14,7 @@ What CampusOS Includes
 - Assignments
 - Academic communities
 - CGPA calculator
-- Academic progress
+- Academic progress 
 
 🚀 Career
 
