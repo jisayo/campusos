@@ -1,9 +1,11 @@
 import Link from 'next/link';
 
 const links = [
-  { href: '/about', label: 'About' },
+  { href: '/discover', label: 'Discover' },
+  { href: '/universities', label: 'Universities' },
   { href: '/features', label: 'Features' },
-  { href: '/discover', label: 'Opportunities' },
+  { href: '/opportunities', label: 'Opportunities' },
+  { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ];
 
@@ -21,7 +23,10 @@ export function PublicNav() {
         ))}
       </nav>
       <div className="flex items-center gap-4">
-        <Link href="/auth/login" className="text-sm text-bone hover:text-gold transition-colors">
+        <button aria-label="Search" className="w-8 h-8 flex items-center justify-center text-muted hover:text-bone transition-colors">
+          <SearchIcon />
+        </button>
+        <Link href="/auth/login" className="text-sm text-bone border border-border rounded-sm px-4 py-2 hover:border-gold/40 transition-colors">
           Log in
         </Link>
         <Link
@@ -32,5 +37,14 @@ export function PublicNav() {
         </Link>
       </div>
     </header>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="11" cy="11" r="7" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
   );
 }

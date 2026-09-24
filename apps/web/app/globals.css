@@ -2,11 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Single fixed color scheme — no light/dark toggle for now. Original
+   warm-black/gold palette from the start of this build. */
+:root {
+  --ink: 14 13 11;
+  --surface: 23 21 15;
+  --border: 42 38 32;
+  --bone: 237 232 221;
+  --muted: 156 147 132;
+  --gold: 217 164 65;
+  --gold-bright: 240 194 101;
+}
+
 @layer base {
   body {
-    @apply bg-ink text-bone font-sans;
+    @apply bg-ink text-bone font-sans transition-colors duration-150;
   }
   h1, h2, h3 {
     @apply font-display;
   }
 }
+
+@layer utilities {
+  /* Subtle grid — gives depth without competing with content */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(var(--gold) / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--gold) / 0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Soft radial glow, used behind hero content */
+  .glow-gold {
+    background: radial-gradient(
+      circle at 30% 20%,
+      rgb(var(--gold) / 0.16),
+      transparent 60%
+    );
+  }
+
+  /* Fine grain texture so flat black doesn't look like a placeholder.
+     Dialed down automatically in light mode via the opacity variable. */
+  .grain {
+    position: relative;
+  }
+  .grain::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  }
+}
+

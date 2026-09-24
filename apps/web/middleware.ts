@@ -1,18 +1,26 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
-import { db } from './lib/db';
-import { redis } from './lib/redis';
-import { loadAuthContext } from '@campusos/shared/auth';
-import type { RoleType } from '@campusos/shared/types';
 
-// Route classification — mirrors brief §31 exactly.
-const PUBLIC_PREFIXES = ['/', '/about', '/features', '/contact', '/auth'];
-const ROLE_GATE: Record<string, RoleType> = {
-  '/admin': 'admin',
-  '/adviser': 'adviser',
-  '/lecturer': 'lecturer',
-  '/rep': 'rep',
-};
+// This file is intentionally Edge-safe: it does ONLY identity verification
+// (is this JWT valid?), never database/Redis lookups. Role- and
+// resource-level authorization now happens in each protected route's
+// layout/page (Server Components, which always run in full Node.js) via
+// `requireAuthContext()` / `requireRole()` in lib/authz.ts. See
+// docs/ARCHITECTURE.md "Authentication vs. authorization" for why this
+// split exists — it avoids depending on Next.js's Node.js middleware
+// runtime feature, which proved unreliable with `ioredis` in this
+// environment, and is arguably better separation anyway: middleware
+// answers "is this a real session", pages answer "is this session
+// allowed to see this page".
+
+const PUBLIC_PREFIXES = ['/', '/about', '/features', '/contact', '/auth', '/api/auth', '/api/universities', '/universities'];
+
+// Routes that must work for BOTH logged-out visitors and logged-in users
+// on the same URL (e.g. /opportunities shows Global content to everyone,
+// plus university-specific content if logged in). These never redirect to
+// login — they just attempt to identify the user if a valid session
+// exists, and proceed either way.
+const OPTIONAL_AUTH_PREFIXES = ['/opportunities'];
 
 function matchesPrefix(pathname: string, prefixes: string[]) {
   return prefixes.some((p) => pathname === p || pathname.startsWith(p + '/'));
@@ -21,14 +29,26 @@ function matchesPrefix(pathname: string, prefixes: string[]) {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // [0] Public routes skip everything.
   if (matchesPrefix(pathname, PUBLIC_PREFIXES)) {
     return NextResponse.next();
   }
 
-  // [1] Authenticate — JWT carries identity only, never roles/permissions
-  // (see docs/ARCHITECTURE.md for why roles are resolved server-side instead).
   const token = req.cookies.get('session')?.value;
+
+  if (matchesPrefix(pathname, OPTIONAL_AUTH_PREFIXES)) {
+    const res = NextResponse.next();
+    if (token) {
+      try {
+        const { payload } = await jwtVerify(token, getJwtSecret());
+        res.headers.set('x-user-id', payload.sub as string);
+      } catch {
+        // Invalid/expired token on an optional-auth route: just proceed
+        // as a logged-out visitor rather than redirecting.
+      }
+    }
+    return res;
+  }
+
   if (!token) {
     return redirectToLogin(req);
   }
@@ -41,34 +61,11 @@ export async function middleware(req: NextRequest) {
     return redirectToLogin(req);
   }
 
-  // [2] Load authorization context (Redis-cached, explicitly invalidated on write).
-  const ctx = await loadAuthContext(db, redis, userId);
-  if (!ctx || ctx.status === 'suspended') {
-    return redirectToLogin(req);
-  }
-
-  // [3] Route classifier — is this route role-gated?
-  const roleGatePrefix = Object.keys(ROLE_GATE).find(
-    (prefix) => pathname === prefix || pathname.startsWith(prefix + '/')
-  );
-
-  // [4] Authorize.
-  if (roleGatePrefix) {
-    const requiredRole = ROLE_GATE[roleGatePrefix];
-    const hasRole = ctx.roles.some((r) => r.roleType === requiredRole);
-    if (!hasRole) {
-      // 403, not a redirect — but also not a 404, since the route's
-      // existence isn't sensitive (unlike private resource IDs).
-      return NextResponse.rewrite(new URL('/403', req.url));
-    }
-  }
-
-  // Scoped, resource-level checks (e.g. "is this the lecturer for THIS
-  // course") happen inside the specific route/API handler via `can()`,
-  // since they need a resourceOrgNodeId the middleware layer doesn't have.
-
+  // Role-gating and resource-scoped checks (admin/adviser/lecturer/rep,
+  // and any `can()` call) now happen in the page/layout itself, not here —
+  // this file no longer touches the database.
   const res = NextResponse.next();
-  res.headers.set('x-user-id', ctx.userId); // handlers read this instead of re-verifying
+  res.headers.set('x-user-id', userId);
   return res;
 }
 
@@ -85,5 +82,11 @@ function getJwtSecret() {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  // Excludes _next internals AND any file with a common static-asset
+  // extension (images, fonts, etc.) — not just favicon.ico specifically.
+  // Without this broader exclusion, a request for e.g. /hero.jpg gets
+  // treated as a protected route and redirected to login when the
+  // visitor isn't authenticated, which is exactly what was silently
+  // breaking the homepage hero image.
+  matcher: ['/((?!_next/static|_next/image|.*\\.(?:jpg|jpeg|png|gif|svg|webp|ico|avif)$).*)'],
 };

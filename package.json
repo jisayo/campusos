@@ -4,6 +4,7 @@
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "npm run dev --workspace=apps/web",
-    "db:migrate": "psql $DATABASE_URL -f packages/db/schema.sql"
+    "db:migrate": "psql $DATABASE_URL -f packages/db/schema.sql",
+    "db:seed": "psql $DATABASE_URL -f packages/db/seed.sql"
   }
 }

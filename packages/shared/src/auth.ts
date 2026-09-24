@@ -32,7 +32,7 @@ export async function loadAuthContext(
   if (cached) return JSON.parse(cached);
 
   const userRes = await db.query(
-    `select id, university_id, status from users where id = $1`,
+    `select id, university_id, name, status from users where id = $1`,
     [userId]
   );
   if (userRes.rowCount === 0) return null;
@@ -51,6 +51,7 @@ export async function loadAuthContext(
   const ctx: AuthContext = {
     userId: user.id,
     universityId: user.university_id,
+    name: user.name,
     status: user.status,
     roles: rolesRes.rows.map((r) => ({
       id: r.id,

@@ -106,6 +106,7 @@ create table courses (
   code text not null,                                   -- e.g. 'CSC 201'
   title text not null,
   description text,
+  credit_units integer not null default 3,              -- needed for GPA/CGPA weighting
   created_at timestamptz not null default now()
 );
 create index idx_courses_university on courses(university_id);
@@ -167,6 +168,10 @@ create index idx_submissions_assignment on assignment_submissions(assignment_id)
 -- OPPORTUNITIES
 -- ============================================================
 
+-- Scoping: opportunities are Global (university_id = null, visible to
+-- every university) or restricted to exactly one university. Deliberately
+-- two-tier, not three — no separate country/"national" tier. See
+-- docs/ARCHITECTURE.md "Opportunities scope" for why.
 create table opportunities (
   id uuid primary key default uuid_generate_v4(),
   university_id uuid references universities(id), -- null = visible to all universities

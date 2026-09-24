@@ -41,6 +41,7 @@ export interface OrgMembership {
 export interface AuthContext {
   userId: string;
   universityId: string;
+  name: string;
   status: 'pending' | 'active' | 'suspended';
   roles: Role[];
   memberships: OrgMembership[];

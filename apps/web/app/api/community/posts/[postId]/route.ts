@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '../../../../../lib/db';
 import { redis } from '../../../../../lib/redis';
-import { loadAuthContext, can } from '@campusos/shared/auth';
+import { loadAuthContext, can } from '@campusos/shared';
 
 export async function DELETE(
   req: NextRequest,
