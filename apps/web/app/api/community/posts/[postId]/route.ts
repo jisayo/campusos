@@ -13,7 +13,7 @@ import { loadAuthContext, can } from '@campusos/shared';
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   const userId = req.headers.get('x-user-id'); // set by middleware after JWT verify
   if (!userId) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -23,7 +23,7 @@ export async function DELETE(
 
   const postRes = await db.query(
     `select id, org_node_id, author_id from community_posts where id = $1 and deleted_at is null`,
-    [params.postId]
+    [(await params).postId]
   );
   if (postRes.rowCount === 0) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
@@ -43,6 +43,6 @@ export async function DELETE(
     return NextResponse.json({ error: 'forbidden' }, { status: 403 }); // visible, just not allowed
   }
 
-  await db.query(`update community_posts set deleted_at = now() where id = $1`, [params.postId]);
+  await db.query(`update community_posts set deleted_at = now() where id = $1`, [(await params).postId]);
   return NextResponse.json({ ok: true });
 }

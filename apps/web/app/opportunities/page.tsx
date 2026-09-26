@@ -7,10 +7,10 @@ import { AppShell } from '../../components/AppShell';
 export default async function OpportunitiesPage({
   searchParams,
 }: {
-  searchParams: { category?: string };
+  searchParams: Promise<{ category?: string }>;
 }) {
   const ctx = await getAuthContext(); // null if logged out — that's expected here, not an error
-  const activeCategory = searchParams.category || 'all';
+  const activeCategory = (await searchParams).category || 'all';
 
   const global = await getGlobalOpportunities();
   const university = ctx ? await getUniversityOpportunities(ctx.universityId) : [];

@@ -13,13 +13,14 @@ const TABS = [
 export default async function CommunityPage({
   searchParams,
 }: {
-  searchParams: { type?: string };
+  searchParams: Promise<{ type?: string }>;
 }) {
+  const sp = await searchParams;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/auth/login');
 
   const [posts, postableNodes] = await Promise.all([
-    getCommunityFeed(ctx.userId, searchParams.type),
+    getCommunityFeed(ctx.userId, sp.type),
     getPostableNodes(ctx.userId),
   ]);
 
@@ -42,7 +43,7 @@ export default async function CommunityPage({
 
       <div className="flex gap-2 mb-6 flex-wrap">
         {TABS.map((tab) => (
-          <TabLink key={tab.label} value={tab.value} label={tab.label} active={searchParams.type === tab.value} />
+          <TabLink key={tab.label} value={tab.value} label={tab.label} active={sp.type === tab.value} />
         ))}
       </div>
 

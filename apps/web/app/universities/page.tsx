@@ -4,15 +4,16 @@ import { searchUniversities, getUniversityCountries } from '../../lib/universiti
 export default async function UniversitiesPage({
   searchParams,
 }: {
-  searchParams: { q?: string; country?: string };
+  searchParams: Promise<{ q?: string; country?: string }>;
 }) {
+  const { q, country } = await searchParams;
   const [universities, countries] = await Promise.all([
-    searchUniversities(searchParams.q),
+    searchUniversities(q),
     getUniversityCountries(),
   ]);
 
-  const filtered = searchParams.country
-    ? universities.filter((u) => u.country === searchParams.country)
+  const filtered = country
+    ? universities.filter((u) => u.country === country)
     : universities;
 
   // Group by country for the sectioned list, matching the reference layout.
@@ -32,16 +33,16 @@ export default async function UniversitiesPage({
           <input
             type="text"
             name="q"
-            defaultValue={searchParams.q}
+            defaultValue={q}
             placeholder="Search universities..."
             className="w-full bg-surface border border-border rounded-sm px-4 py-3 text-bone"
           />
         </form>
 
         <div className="flex gap-2 mb-8 flex-wrap">
-          <CountryTab country={undefined} label="All" active={!searchParams.country} q={searchParams.q} />
+          <CountryTab country={undefined} label="All" active={!country} q={q} />
           {countries.map((c) => (
-            <CountryTab key={c} country={c} label={c} active={searchParams.country === c} q={searchParams.q} />
+            <CountryTab key={c} country={c} label={c} active={country === c} q={q} />
           ))}
         </div>
 

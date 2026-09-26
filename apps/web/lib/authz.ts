@@ -19,7 +19,7 @@ import { loadAuthContext, can, type Action, type RoleType, type AuthContext } fr
 
 /** Reads the identity middleware already verified, then loads full context. */
 export async function getAuthContext(): Promise<AuthContext | null> {
-  const userId = headers().get('x-user-id');
+  const userId = (await headers()).get('x-user-id');
   if (!userId) return null;
   return loadAuthContext(db, redis, userId);
 }

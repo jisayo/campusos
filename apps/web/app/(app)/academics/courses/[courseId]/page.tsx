@@ -8,11 +8,12 @@ import {
   getCourseAssignments,
 } from '../../../../../lib/academics';
 
-export default async function CourseDetailPage({ params }: { params: { courseId: string } }) {
+export default async function CourseDetailPage({ params }: { params: Promise<{ courseId: string }> }) {
+  const { courseId } = await params;
   const ctx = await getAuthContext();
   if (!ctx) redirect('/auth/login');
 
-  const course = await getCourse(params.courseId);
+  const course = await getCourse(courseId);
   if (!course) notFound(); // course doesn't exist at all
 
   const allowed = await hasCourseAccess(ctx.userId, course.orgNodeId);

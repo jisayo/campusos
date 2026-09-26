@@ -5,9 +5,9 @@ import { getOpportunity } from '../../../lib/opportunities';
 import { PublicNav } from '../../(public)/components/PublicNav';
 import { AppShell } from '../../../components/AppShell';
 
-export default async function OpportunityDetailPage({ params }: { params: { opportunityId: string } }) {
+export default async function OpportunityDetailPage({ params }: { params: Promise<{ opportunityId: string }> }) {
   const ctx = await getAuthContext();
-  const opp = await getOpportunity(params.opportunityId);
+  const opp = await getOpportunity((await params).opportunityId);
 
   if (!opp) notFound();
 
