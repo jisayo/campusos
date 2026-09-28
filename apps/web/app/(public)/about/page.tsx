@@ -8,7 +8,7 @@ export default function AboutPage() {
   return (
     <div>
       <div className="relative overflow-hidden">
-        <Image src="/hero.jpg" alt="" fill priority unoptimized sizes="100vw" className="object-cover" />
+        <Image src="/hero.webp" alt="" fill priority sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-black/70" />
         <div className="relative">
           <PublicNav />

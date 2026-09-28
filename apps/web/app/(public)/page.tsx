@@ -11,7 +11,7 @@ export default async function HomePage() {
     <div>
       {/* ============ HERO ============ */}
       <div className="relative overflow-hidden">
-        <Image src="/hero-home.jpg" alt="" fill priority unoptimized sizes="100vw" className="object-cover" />
+        <Image src="/hero-home.webp" alt="" fill priority sizes="100vw" className="object-cover" />
         {/* Fixed dark overlay. No theme-flip concerns anymore since
             light/dark mode was removed — text-bone/text-muted/etc. now
             always resolve to their light-on-dark values regardless of
@@ -104,7 +104,7 @@ export default async function HomePage() {
             {/* Real data — the one card actually backed by a live query. */}
             {realOpportunity ? (
               <UpdateCard
-                image="/updates/opportunity.jpg"
+                image="/updates/opportunity.webp"
                 tag="Opportunity"
                 title={realOpportunity.title}
                 meta={realOpportunity.organization}
@@ -112,16 +112,16 @@ export default async function HomePage() {
                 href={`/opportunities/${realOpportunity.id}`}
               />
             ) : (
-              <UpdateCard image="/updates/opportunity.jpg" tag="Opportunity" title="Check back soon" meta="New opportunities are added regularly" href="/opportunities" />
+              <UpdateCard image="/updates/opportunity.webp" tag="Opportunity" title="Check back soon" meta="New opportunities are added regularly" href="/opportunities" />
             )}
 
             {/* Illustrative examples — same category as the dashboard
                 preview card: there's no real "events" or generic
                 "community spotlight" data model yet, so these are
                 static, not fabricated live data. */}
-            <UpdateCard image="/updates/event.jpg" tag="Event" title="Campus Tech Workshop" meta="OAU · Student Union" detail="Sep 26, 2025 · 10:00 AM" href="/discover" />
-            <UpdateCard image="/updates/academic.jpg" tag="Academic" title="MTH 202 Study Group" meta="Mathematical Methods II" detail="Sep 24, 2025 · 4:00 PM" href="/discover" />
-            <UpdateCard image="/updates/community.jpg" tag="Community" title="OAU Devs Community" meta="1.2k members" detail="Build · Learn · Grow" href="/discover" />
+            <UpdateCard image="/updates/event.webp" tag="Event" title="Campus Tech Workshop" meta="OAU · Student Union" detail="Sep 26, 2025 · 10:00 AM" href="/discover" />
+            <UpdateCard image="/updates/academic.webp" tag="Academic" title="MTH 202 Study Group" meta="Mathematical Methods II" detail="Sep 24, 2025 · 4:00 PM" href="/discover" />
+            <UpdateCard image="/updates/community.webp" tag="Community" title="OAU Devs Community" meta="1.2k members" detail="Build · Learn · Grow" href="/discover" />
           </div>
         </div>
       </section>
@@ -146,7 +146,7 @@ export default async function HomePage() {
             <PillarCard icon={<ProjectsIcon />} title="Projects" body="Discover, share and collaborate on projects." />
           </div>
           <div className="relative rounded-md overflow-hidden min-h-[280px]">
-            <Image src="/hero.jpg" alt="" fill unoptimized className="object-cover" />
+            <Image src="/hero.webp" alt="" fill className="object-cover" />
             <div className="absolute inset-0 bg-black/50 flex flex-col justify-end p-6">
               <p className="text-white text-sm mb-1">Built for every university.</p>
               <p className="text-white/70 text-xs">Designed for you, wherever you study.</p>
@@ -375,7 +375,7 @@ function UpdateCard({
   return (
     <Link href={href} className="block bg-surface border border-border rounded-md overflow-hidden hover:border-gold/40 transition-colors group">
       <div className="relative h-28 overflow-hidden">
-        <Image src={image} alt="" fill unoptimized className="object-cover transition-transform duration-500 group-hover:scale-110" />
+        <Image src={image} alt="" fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
         <span className="absolute top-3 left-3 text-[10px] uppercase tracking-wide text-ink bg-gold px-2 py-1 rounded-sm font-medium">
           {tag}
         </span>
