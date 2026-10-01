@@ -1,14 +1,14 @@
 -- CampusOS core schema
--- Design decisions this schema encodes (see docs/ARCHITECTURE.md for full rationale):
+-- Design decisions this schema encodes (see docs/architecture.md for full rationale):
 --   1. Multi-tenant via tenant_id (= university) on every row that isn't global reference data.
 --   2. Org structure modeled as a graph (org_nodes) + a precomputed closure table (org_closure)
 --      for O(1) ancestor/descendant permission checks, not runtime recursive CTEs.
 --   3. Roles attach to a scope org_node, not globally — enables fine-grained RBAC without
---      role-type explosion (see docs/ARCHITECTURE.md "Permission resolution").
+--      role-type explosion (see docs/architecture.md "Permission resolution").
 --   4. Messaging schema supports group conversations from day one; MVP UI only exposes 1:1.
 
 create extension if not exists "uuid-ossp";
-create extension if not exists pg_trgm; -- for Approach A search (see docs/ARCHITECTURE.md)
+create extension if not exists pg_trgm; -- for Approach A search (see docs/architecture.md)
 
 -- ============================================================
 -- TENANCY
