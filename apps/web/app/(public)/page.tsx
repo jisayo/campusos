@@ -40,7 +40,7 @@ export default async function HomePage() {
                   Get started →
                 </Link>
                 <Link
-                  href="/discover"
+                  href="/features"
                   className="border border-bone/40 bg-black/30 text-bone px-8 py-4 rounded-md text-[15px] text-center hover:border-gold/60 hover:bg-black/50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-bright"
                 >
                   ▶ &nbsp;Explore CampusOS
@@ -89,9 +89,9 @@ export default async function HomePage() {
               <UpdateCard image="/updates/opportunity.webp" tag="Opportunity" title="Check back soon" meta="New opportunities are added regularly" metaIcon={<BriefIcon />} href="/opportunities" />
             )}
             {/* Illustrative placeholders until events / community spotlight have a backend. */}
-            <UpdateCard image="/updates/event.webp" tag="Event" title="Campus Tech Workshop" meta="OAU · Student Union" metaIcon={<PinIcon />} detail="Sep 26, 2025 · 10:00 AM" detailIcon={<CalendarIcon />} href="/discover" />
-            <UpdateCard image="/updates/academic.webp" tag="Academic" title="MTH 202 Study Group" meta="Mathematical Methods II" metaIcon={<BookIcon />} detail="Sep 24, 2025 · 4:00 PM" detailIcon={<ClockIcon />} href="/discover" />
-            <UpdateCard image="/updates/community.webp" tag="Community" title="OAU Devs Community" meta="Build · Learn · Grow" metaIcon={<CommunityIcon />} detail="1.2k members" detailIcon={<UserIcon />} href="/discover" />
+            <UpdateCard image="/updates/event.webp" tag="Event" title="Campus Tech Workshop" meta="OAU · Student Union" metaIcon={<PinIcon />} detail="Sep 26, 2025 · 10:00 AM" detailIcon={<CalendarIcon />} href="/features" />
+            <UpdateCard image="/updates/academic.webp" tag="Academic" title="MTH 202 Study Group" meta="Mathematical Methods II" metaIcon={<BookIcon />} detail="Sep 24, 2025 · 4:00 PM" detailIcon={<ClockIcon />} href="/features" />
+            <UpdateCard image="/updates/community.webp" tag="Community" title="OAU Devs Community" meta="Build · Learn · Grow" metaIcon={<CommunityIcon />} detail="1.2k members" detailIcon={<UserIcon />} href="/features" />
           </div>
         </div>
       </section>
