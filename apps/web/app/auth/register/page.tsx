@@ -2,16 +2,85 @@
 
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { AuthShell, inputClass } from '../components/AuthShell';
 
 export default function RegisterPage() {
+  const router = useRouter();
+
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    universityId: '',
+  });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError('');
 
-    // TODO: Connect this form to the registration API.
+    if (form.password !== form.confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    if (form.password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
+
+    if (!form.universityId) {
+      setError('Please select your university.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          universityId: form.universityId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Unable to create account.');
+        return;
+      }
+
+      router.push(data.redirectTo || '/auth/verify-sent');
+    } catch {
+      setError(
+        'Unable to connect to CampusOS. Please check your connection and try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function updateField(
+    field: keyof typeof form,
+    value: string
+  ) {
+    setForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
   }
 
   return (
@@ -31,7 +100,8 @@ export default function RegisterPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Full name */}
+
+        {/* Name */}
         <div>
           <label
             htmlFor="name"
@@ -44,8 +114,10 @@ export default function RegisterPage() {
             id="name"
             name="name"
             type="text"
-            autoComplete="name"
             required
+            autoComplete="name"
+            value={form.name}
+            onChange={(e) => updateField('name', e.target.value)}
             placeholder="Enter your full name"
             className={inputClass}
           />
@@ -64,11 +136,41 @@ export default function RegisterPage() {
             id="email"
             name="email"
             type="email"
-            autoComplete="email"
             required
+            autoComplete="email"
+            value={form.email}
+            onChange={(e) => updateField('email', e.target.value)}
             placeholder="you@example.com"
             className={inputClass}
           />
+        </div>
+
+        {/* University */}
+        <div>
+          <label
+            htmlFor="university"
+            className="block text-sm text-bone/80 mb-2"
+          >
+            University
+          </label>
+
+          <select
+            id="university"
+            name="university"
+            required
+            value={form.universityId}
+            onChange={(e) =>
+              updateField('universityId', e.target.value)
+            }
+            className={`${inputClass} appearance-none`}
+          >
+            <option value="">Select your university</option>
+
+            {/* Replace these with IDs from your universities table */}
+            <option value="00000000-0000-0000-0000-000000000001">
+              Obafemi Awolowo University
+            </option>
+          </select>
         </div>
 
         {/* Password */}
@@ -85,17 +187,21 @@ export default function RegisterPage() {
               id="password"
               name="password"
               type={showPassword ? 'text' : 'password'}
-              autoComplete="new-password"
               required
               minLength={8}
+              autoComplete="new-password"
+              value={form.password}
+              onChange={(e) =>
+                updateField('password', e.target.value)
+              }
               placeholder="Create a strong password"
               className={`${inputClass} pr-20`}
             />
 
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted hover:text-gold transition-colors"
+              onClick={() => setShowPassword((value) => !value)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted hover:text-gold"
             >
               {showPassword ? 'Hide' : 'Show'}
             </button>
@@ -120,8 +226,12 @@ export default function RegisterPage() {
               id="confirmPassword"
               name="confirmPassword"
               type={showConfirmPassword ? 'text' : 'password'}
-              autoComplete="new-password"
               required
+              autoComplete="new-password"
+              value={form.confirmPassword}
+              onChange={(e) =>
+                updateField('confirmPassword', e.target.value)
+              }
               placeholder="Re-enter your password"
               className={`${inputClass} pr-20`}
             />
@@ -129,14 +239,24 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() =>
-                setShowConfirmPassword(!showConfirmPassword)
+                setShowConfirmPassword((value) => !value)
               }
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted hover:text-gold transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted hover:text-gold"
             >
               {showConfirmPassword ? 'Hide' : 'Show'}
             </button>
           </div>
         </div>
+
+        {/* Error */}
+        {error && (
+          <div
+            role="alert"
+            className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+          >
+            {error}
+          </div>
+        )}
 
         {/* Terms */}
         <div className="flex items-start gap-3 pt-1">
@@ -148,7 +268,10 @@ export default function RegisterPage() {
             className="mt-1 h-4 w-4 accent-gold"
           />
 
-          <label htmlFor="terms" className="text-xs leading-5 text-muted">
+          <label
+            htmlFor="terms"
+            className="text-xs leading-5 text-muted"
+          >
             I agree to the CampusOS{' '}
             <Link
               href="/terms"
@@ -167,16 +290,16 @@ export default function RegisterPage() {
           </label>
         </div>
 
-        {/* Submit */}
+        {/* Create account */}
         <button
           type="submit"
-          className="w-full rounded-lg bg-gold text-black font-semibold py-3.5 hover:bg-gold/90 focus:outline-none focus:ring-2 focus:ring-gold/60 transition-all"
+          disabled={loading}
+          className="w-full rounded-lg bg-gold text-black font-semibold py-3.5 hover:bg-gold/90 focus:outline-none focus:ring-2 focus:ring-gold/60 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Create account
+          {loading ? 'Creating account...' : 'Create account'}
         </button>
       </form>
 
-      {/* Login */}
       <div className="mt-7 pt-6 border-t border-gold/15 text-center">
         <p className="text-sm text-muted">
           Already have an account?{' '}
