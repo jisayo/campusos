@@ -280,3 +280,19 @@ create table audit_logs (
   metadata jsonb not null default '{}',
   created_at timestamptz not null default now()
 );
+-- ============================================================
+-- email verification
+-- ============================================================
+
+create table verification_tokens (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references users(id) on delete cascade,
+  token text unique not null,
+  type text not null check (type in ('email_verify')),
+  expires_at timestamptz not null,
+  created_at timestamptz not null default now(),
+  used_at timestamptz
+);
+
+create index idx_verification_tokens_user on verification_tokens(user_id);
+create index idx_verification_tokens_token on verification_tokens(token);
